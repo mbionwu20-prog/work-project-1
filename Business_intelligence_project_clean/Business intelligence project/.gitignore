@@ -1,0 +1,8 @@
+.vs/
+bin/
+obj/
+~$*
+*.dtproj.user
+UpgradeLog.htm
+*.bim_radam.settings
+*.pptx

@@ -1,0 +1,697 @@
+{
+  "name": "SemanticModel",
+  "compatibilityLevel": 1500,
+  "model": {
+    "culture": "en-US",
+    "dataSources": [
+      {
+        "type": "structured",
+        "name": "SQL/localhost\\MECDBI2026;PharmaGlobalDWH",
+        "connectionDetails": {
+          "protocol": "tds",
+          "address": {
+            "server": "localhost\\MECDBI2026",
+            "database": "PharmaGlobalDWH"
+          },
+          "authentication": null,
+          "query": null
+        },
+        "credential": {
+          "AuthenticationKind": "UsernamePassword",
+          "kind": "SQL",
+          "path": "localhost\\mecdbi2026;PharmaGlobalDWH",
+          "Username": "admin",
+          "EncryptConnection": false
+        }
+      }
+    ],
+    "tables": [
+      {
+        "name": "RawArmazens",
+        "columns": [
+          {
+            "name": "COD_ARMAZEM",
+            "dataType": "string",
+            "sourceColumn": "COD_ARMAZEM"
+          },
+          {
+            "name": "COD_UNIDADE_HOSPITALAR",
+            "dataType": "string",
+            "sourceColumn": "COD_UNIDADE_HOSPITALAR"
+          },
+          {
+            "name": "ATIVO",
+            "dataType": "string",
+            "sourceColumn": "ATIVO"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawArmazens = Source{[Schema=\"dbo\",Item=\"RawArmazens\"]}[Data]",
+                "in",
+                "    dbo_RawArmazens"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "RawArtigos",
+        "columns": [
+          {
+            "name": "COD_ARTIGO",
+            "dataType": "string",
+            "sourceColumn": "COD_ARTIGO"
+          },
+          {
+            "name": "DESCRICAO",
+            "dataType": "string",
+            "sourceColumn": "DESCRICAO"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawArtigos = Source{[Schema=\"dbo\",Item=\"RawArtigos\"]}[Data],",
+                "    TiposCorretos = Table.TransformColumnTypes(dbo_RawArtigos, {",
+                "        {\"COD_ARTIGO\", type text},",
+                "        {\"DESCRICAO\", type text}",
+                "    })",
+                "in",
+                "    TiposCorretos"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "RawCentrosCusto",
+        "columns": [
+          {
+            "name": "COD_CCU",
+            "dataType": "string",
+            "sourceColumn": "COD_CCU"
+          },
+          {
+            "name": "CCU_DESIGN",
+            "dataType": "string",
+            "sourceColumn": "CCU_DESIGN"
+          },
+          {
+            "name": "NS",
+            "dataType": "int64",
+            "sourceColumn": "NS"
+          },
+          {
+            "name": "Id",
+            "dataType": "int64",
+            "sourceColumn": "Id"
+          },
+          {
+            "name": "Group",
+            "dataType": "int64",
+            "sourceColumn": "Group"
+          },
+          {
+            "name": "GROUP_DESCR",
+            "dataType": "string",
+            "sourceColumn": "GROUP_DESCR"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawCentrosCusto = Source{[Schema=\"dbo\",Item=\"RawCentrosCusto\"]}[Data]",
+                "in",
+                "    dbo_RawCentrosCusto"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "RawFornecedores",
+        "columns": [
+          {
+            "name": "COD_FORNECEDOR",
+            "dataType": "string",
+            "sourceColumn": "COD_FORNECEDOR"
+          },
+          {
+            "name": "NOME_FORNECEDOR",
+            "dataType": "string",
+            "sourceColumn": "NOME_FORNECEDOR"
+          },
+          {
+            "name": "PAIS",
+            "dataType": "string",
+            "sourceColumn": "PAIS"
+          },
+          {
+            "name": "PORTES",
+            "dataType": "double",
+            "sourceColumn": "PORTES"
+          },
+          {
+            "name": "AVALIACAO",
+            "dataType": "double",
+            "sourceColumn": "AVALIACAO"
+          },
+          {
+            "name": "ATIVO",
+            "dataType": "string",
+            "sourceColumn": "ATIVO"
+          },
+          {
+            "name": "DATA_INATIVACAO",
+            "dataType": "string",
+            "sourceColumn": "DATA_INATIVACAO"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawFornecedores = Source{[Schema=\"dbo\",Item=\"RawFornecedores\"]}[Data],",
+                "",
+                "    // Tratar Nulls",
+                "    TratarPortes = Table.ReplaceValue(dbo_RawFornecedores, null, 0, Replacer.ReplaceValue, {\"PORTES\"}),",
+                "    TratarAvaliacao = Table.ReplaceValue(TratarPortes, null, 0, Replacer.ReplaceValue, {\"AVALIACAO\"}),",
+                "    TratarDataInativacao = Table.ReplaceValue(TratarAvaliacao, null, \"Ativo\", Replacer.ReplaceValue, {\"DATA_INATIVACAO\"})",
+                "",
+                "in",
+                "    TratarDataInativacao"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "Calendário",
+        "columns": [
+          {
+            "name": "Date",
+            "dataType": "dateTime",
+            "sourceColumn": "Date"
+          },
+          {
+            "name": "Ano",
+            "dataType": "string",
+            "sourceColumn": "Ano"
+          },
+          {
+            "name": "MesNum",
+            "dataType": "int64",
+            "sourceColumn": "MesNum"
+          },
+          {
+            "name": "Mes",
+            "dataType": "string",
+            "sourceColumn": "Mes"
+          },
+          {
+            "name": "Trimestre",
+            "dataType": "string",
+            "sourceColumn": "Trimestre"
+          },
+          {
+            "name": "DiaSemana",
+            "dataType": "string",
+            "sourceColumn": "DiaSemana"
+          },
+          {
+            "name": "Num Semana",
+            "dataType": "int64",
+            "sourceColumn": "Num Semana"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    // ── 1. RECOLHER E CONVERTER DATAS ─────────────────────────",
+                "    MinCompras2016 = Date.From(List.Min(RawCompras2016[DATA_COMPRA])),",
+                "    MaxCompras2016 = Date.From(List.Max(RawCompras2016[DATA_COMPRA])),",
+                "    MinCompras2017 = Date.From(List.Min(RawCompras2017[DATA_COMPRA])),",
+                "    MaxCompras2017 = Date.From(List.Max(RawCompras2017[DATA_COMPRA])),",
+                "    MinCompras2018 = Date.From(List.Min(RawCompras2018[DATA_COMPRA])),",
+                "    MaxCompras2018 = Date.From(List.Max(RawCompras2018[DATA_COMPRA])),",
+                "    MinConsumos2016 = Date.From(List.Min(RawConsumos2016[DATA_MOVIMENTO])),",
+                "    MaxConsumos2016 = Date.From(List.Max(RawConsumos2016[DATA_MOVIMENTO])),",
+                "    MinConsumos2017 = Date.From(List.Min(RawConsumos2017[DATA_MOVIMENTO])),",
+                "    MaxConsumos2017 = Date.From(List.Max(RawConsumos2017[DATA_MOVIMENTO])),",
+                "    MinConsumos2018 = Date.From(List.Min(RawConsumos2018[DATA_MOVIMENTO])),",
+                "    MaxConsumos2018 = Date.From(List.Max(RawConsumos2018[DATA_MOVIMENTO])),",
+                "",
+                "    // ── 2. EXTREMO GLOBAL ─────────────────────────────────────",
+                "    MinGlobal = List.Min({",
+                "        MinCompras2016, MinCompras2017, MinCompras2018,",
+                "        MinConsumos2016, MinConsumos2017, MinConsumos2018",
+                "    }),",
+                "    MaxGlobal = List.Max({",
+                "        MaxCompras2016, MaxCompras2017, MaxCompras2018,",
+                "        MaxConsumos2016, MaxConsumos2017, MaxConsumos2018",
+                "    }),",
+                "",
+                "    // ── 3. GERAR CALENDÁRIO ───────────────────────────────────",
+                "    TotalDias = Duration.Days(MaxGlobal - MinGlobal) + 1,",
+                "    ListaDatas = List.Dates(MinGlobal, TotalDias, #duration(1,0,0,0)),",
+                "    Tabela = Table.FromList(ListaDatas, Splitter.SplitByNothing(), {\"Date\"}, null, ExtraValues.Error),",
+                "    TipoData = Table.TransformColumnTypes(Tabela, {{\"Date\", type date}}),",
+                "",
+                "    // ── 4. COLUNAS EXTRA ──────────────────────────────────────",
+                "    AddAno = Table.AddColumn(TipoData, \"Ano\", ",
+                "        each Text.From(Date.Year([Date])), type text),",
+                "",
+                "    AddTrimestre = Table.AddColumn(AddAno, \"Trimestre\", ",
+                "        each \"T\" & Number.ToText(Date.QuarterOfYear([Date])), type text),",
+                "",
+                "    AddNumSemana = Table.AddColumn(AddTrimestre, \"Num Semana\", ",
+                "        each Date.WeekOfYear([Date]), Int64.Type),",
+                "",
+                "    AddMesNum = Table.AddColumn(AddNumSemana, \"MesNum\", ",
+                "        each Date.Month([Date]), Int64.Type),",
+                "",
+                "    AddMes = Table.AddColumn(AddMesNum, \"Mes\", ",
+                "        each Date.ToText([Date], \"MMMM\", \"pt-PT\"), type text),",
+                "",
+                "    AddDiaSemana = Table.AddColumn(AddMes, \"DiaSemana\", ",
+                "        each Date.ToText([Date], \"dddd\", \"pt-PT\"), type text)",
+                "",
+                "in",
+                "    AddDiaSemana"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fConsumos",
+        "columns": [
+          {
+            "name": "COD_CCU",
+            "dataType": "string",
+            "sourceColumn": "COD_CCU"
+          },
+          {
+            "name": "COD_ARTIGO",
+            "dataType": "int64",
+            "sourceColumn": "COD_ARTIGO"
+          },
+          {
+            "name": "COD_ARMAZEM",
+            "dataType": "string",
+            "sourceColumn": "COD_ARMAZEM"
+          },
+          {
+            "name": "QUANTIDADE_MOVIMENTADA",
+            "dataType": "double",
+            "sourceColumn": "QUANTIDADE_MOVIMENTADA"
+          },
+          {
+            "name": "VALOR_MOVIMENTADO",
+            "dataType": "double",
+            "sourceColumn": "VALOR_MOVIMENTADO"
+          },
+          {
+            "name": "DATA_MOVIMENTO",
+            "dataType": "dateTime",
+            "sourceColumn": "DATA_MOVIMENTO"
+          },
+          {
+            "name": "TIPO_MOVIMENTO",
+            "dataType": "string",
+            "sourceColumn": "TIPO_MOVIMENTO"
+          },
+          {
+            "name": "COD_LINHA",
+            "dataType": "string",
+            "sourceColumn": "COD_LINHA"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Table.Combine({RawConsumos2016, RawConsumos2017, RawConsumos2018}),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(Source,{{\"DATA_MOVIMENTO\", type date}})",
+                "in",
+                "    #\"Changed Type\""
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "fCompras",
+        "columns": [
+          {
+            "name": "COD_LINHA",
+            "dataType": "string",
+            "sourceColumn": "COD_LINHA"
+          },
+          {
+            "name": "COD_FORNECEDOR",
+            "dataType": "string",
+            "sourceColumn": "COD_FORNECEDOR"
+          },
+          {
+            "name": "COD_ARTIGO",
+            "dataType": "int64",
+            "sourceColumn": "COD_ARTIGO"
+          },
+          {
+            "name": "COD_ARMAZEM",
+            "dataType": "string",
+            "sourceColumn": "COD_ARMAZEM"
+          },
+          {
+            "name": "QUANTIDADE_MOVIMENTADA",
+            "dataType": "double",
+            "sourceColumn": "QUANTIDADE_MOVIMENTADA"
+          },
+          {
+            "name": "VALOR_MOVIMENTADO",
+            "dataType": "double",
+            "sourceColumn": "VALOR_MOVIMENTADO"
+          },
+          {
+            "name": "DATA_COMPRA",
+            "dataType": "string",
+            "sourceColumn": "DATA_COMPRA"
+          },
+          {
+            "name": "TIPO_MOVIMENTO",
+            "dataType": "string",
+            "sourceColumn": "TIPO_MOVIMENTO"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = Table.Combine({RawCompras2016, RawCompras2017, RawCompras2018})",
+                "in",
+                "    Source"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dPaises",
+        "columns": [
+          {
+            "name": "PAIS",
+            "dataType": "string",
+            "sourceColumn": "PAIS"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawFornecedores = Source{[Schema=\"dbo\",Item=\"RawFornecedores\"]}[Data],",
+                "    Paises = Table.SelectColumns(dbo_RawFornecedores, {\"PAIS\"}),",
+                "    SemDuplicados = Table.Distinct(Paises),",
+                "    Ordenado = Table.Sort(SemDuplicados, {{\"PAIS\", Order.Ascending}})",
+                "in",
+                "    Ordenado"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dUnidadeHospitalar",
+        "columns": [
+          {
+            "name": "COD_UNIDADE_HOSPITALAR",
+            "dataType": "string",
+            "sourceColumn": "COD_UNIDADE_HOSPITALAR"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawArmazens = Source{[Schema=\"dbo\",Item=\"RawArmazens\"]}[Data],",
+                "    UH = Table.SelectColumns(dbo_RawArmazens, {\"COD_UNIDADE_HOSPITALAR\"}),",
+                "    SemDuplicados = Table.Distinct(UH),",
+                "    Ordenado = Table.Sort(SemDuplicados, {{\"COD_UNIDADE_HOSPITALAR\", Order.Ascending}})",
+                "in",
+                "    Ordenado"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "dGrupos",
+        "columns": [
+          {
+            "name": "Group",
+            "dataType": "int64",
+            "sourceColumn": "Group"
+          },
+          {
+            "name": "GROUP_DESCR",
+            "dataType": "string",
+            "sourceColumn": "GROUP_DESCR"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+                "    dbo_RawCentrosCusto = Source{[Schema=\"dbo\",Item=\"RawCentrosCusto\"]}[Data],",
+                "    Grupos = Table.SelectColumns(dbo_RawCentrosCusto, {\"Group\", \"GROUP_DESCR\"}),",
+                "    SemDuplicados = Table.Distinct(Grupos)",
+                "in",
+                "    SemDuplicados"
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "c8e8d671-d1fc-4010-a680-4550338d0454",
+        "fromTable": "fCompras",
+        "fromColumn": "COD_FORNECEDOR",
+        "toTable": "RawFornecedores",
+        "toColumn": "COD_FORNECEDOR"
+      },
+      {
+        "name": "faf0a8fd-96b5-458e-a911-cd46e29cc3fe",
+        "fromTable": "fConsumos",
+        "fromColumn": "COD_ARMAZEM",
+        "toTable": "RawArmazens",
+        "toColumn": "COD_ARMAZEM"
+      },
+      {
+        "name": "98e62191-294e-4845-bbfb-67120f0757dc",
+        "fromTable": "fConsumos",
+        "fromColumn": "COD_CCU",
+        "toTable": "RawCentrosCusto",
+        "toColumn": "COD_CCU"
+      },
+      {
+        "name": "75b45126-3db7-4ea6-8a2a-e3c1e73d47d3",
+        "fromTable": "fConsumos",
+        "fromColumn": "DATA_MOVIMENTO",
+        "toTable": "Calendário",
+        "toColumn": "Date"
+      },
+      {
+        "name": "8a09730c-9008-44f9-be2d-676785cfcceb",
+        "fromTable": "fCompras",
+        "fromColumn": "COD_ARTIGO",
+        "toTable": "RawArtigos",
+        "toColumn": "COD_ARTIGO"
+      },
+      {
+        "name": "b1e812a6-77d5-4e23-8ac6-e7f4dda443dd",
+        "fromTable": "fCompras",
+        "fromColumn": "DATA_COMPRA",
+        "toTable": "Calendário",
+        "toColumn": "Date"
+      },
+      {
+        "name": "b245db07-5c11-43c2-ae6d-0616b3ba86c7",
+        "fromTable": "fCompras",
+        "fromColumn": "COD_ARMAZEM",
+        "toTable": "RawArmazens",
+        "toColumn": "COD_ARMAZEM"
+      },
+      {
+        "name": "0ad79393-80fa-4c62-8500-a53bd548329a",
+        "fromTable": "fConsumos",
+        "fromColumn": "COD_ARTIGO",
+        "toTable": "RawArtigos",
+        "toColumn": "COD_ARTIGO"
+      },
+      {
+        "name": "d4ab2af6-5961-4f3f-855c-d6607f5e8a07",
+        "fromTable": "RawFornecedores",
+        "fromColumn": "PAIS",
+        "toTable": "dPaises",
+        "toColumn": "PAIS"
+      },
+      {
+        "name": "280cdfb6-3a24-4a84-a47a-d1d1ce947d5c",
+        "fromTable": "RawCentrosCusto",
+        "fromColumn": "Group",
+        "toTable": "dGrupos",
+        "toColumn": "Group"
+      },
+      {
+        "name": "130009b7-58a1-4140-8d50-cd6eee86a276",
+        "fromTable": "RawArmazens",
+        "fromColumn": "COD_UNIDADE_HOSPITALAR",
+        "toTable": "dUnidadeHospitalar",
+        "toColumn": "COD_UNIDADE_HOSPITALAR"
+      }
+    ],
+    "expressions": [
+      {
+        "name": "RawCompras2016",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+          "    dbo_RawCompras2016 = Source{[Schema=\"dbo\",Item=\"RawCompras2016\"]}[Data],",
+          "    TratarQuantidade = Table.ReplaceValue(dbo_RawCompras2016, null, 0, Replacer.ReplaceValue, {\"QUANTIDADE_MOVIMENTADA\"}),",
+          "    TratarValor = Table.ReplaceValue(TratarQuantidade, null, 0, Replacer.ReplaceValue, {\"VALOR_MOVIMENTADO\"}),",
+          "    #\"Changed Type\" = Table.TransformColumnTypes(TratarValor,{{\"DATA_COMPRA\", type date}})",
+          "in",
+          "    #\"Changed Type\""
+        ]
+      },
+      {
+        "name": "RawCompras2017",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+          "    dbo_RawCompras2017 = Source{[Schema=\"dbo\",Item=\"RawCompras2017\"]}[Data],",
+          "    TratarQuantidade = Table.ReplaceValue(dbo_RawCompras2017, null, 0, Replacer.ReplaceValue, {\"QUANTIDADE_MOVIMENTADA\"}),",
+          "    TratarValor = Table.ReplaceValue(TratarQuantidade, null, 0, Replacer.ReplaceValue, {\"VALOR_MOVIMENTADO\"})",
+          "in",
+          "    TratarValor"
+        ]
+      },
+      {
+        "name": "RawCompras2018",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+          "    dbo_RawCompras2018 = Source{[Schema=\"dbo\",Item=\"RawCompras2018\"]}[Data],",
+          "    TratarQuantidade = Table.ReplaceValue(dbo_RawCompras2018, null, 0, Replacer.ReplaceValue, {\"QUANTIDADE_MOVIMENTADA\"}),",
+          "    TratarValor = Table.ReplaceValue(TratarQuantidade, null, 0, Replacer.ReplaceValue, {\"VALOR_MOVIMENTADO\"})",
+          "in",
+          "    TratarValor"
+        ]
+      },
+      {
+        "name": "RawConsumos2016",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+          "    dbo_RawConsumos2016 = Source{[Schema=\"dbo\",Item=\"RawConsumos2016\"]}[Data],",
+          "    TratarQuantidade = Table.ReplaceValue(dbo_RawConsumos2016, null, 0, Replacer.ReplaceValue, {\"QUANTIDADE_MOVIMENTADA\"}),",
+          "    TratarValor = Table.ReplaceValue(TratarQuantidade, null, 0, Replacer.ReplaceValue, {\"VALOR_MOVIMENTADO\"})",
+          "in",
+          "    TratarValor"
+        ]
+      },
+      {
+        "name": "RawConsumos2017",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+          "    dbo_RawConsumos2017 = Source{[Schema=\"dbo\",Item=\"RawConsumos2017\"]}[Data],",
+          "    TratarQuantidade = Table.ReplaceValue(dbo_RawConsumos2017, null, 0, Replacer.ReplaceValue, {\"QUANTIDADE_MOVIMENTADA\"}),",
+          "    TratarValor = Table.ReplaceValue(TratarQuantidade, null, 0, Replacer.ReplaceValue, {\"VALOR_MOVIMENTADO\"})",
+          "in",
+          "    TratarValor"
+        ]
+      },
+      {
+        "name": "RawConsumos2018",
+        "kind": "m",
+        "expression": [
+          "let",
+          "    Source = #\"SQL/localhost\\MECDBI2026;PharmaGlobalDWH\",",
+          "    dbo_RawConsumos2018 = Source{[Schema=\"dbo\",Item=\"RawConsumos2018\"]}[Data],",
+          "    TratarQuantidade = Table.ReplaceValue(dbo_RawConsumos2018, null, 0, Replacer.ReplaceValue, {\"QUANTIDADE_MOVIMENTADA\"}),",
+          "    TratarValor = Table.ReplaceValue(TratarQuantidade, null, 0, Replacer.ReplaceValue, {\"VALOR_MOVIMENTADO\"})",
+          "in",
+          "    TratarValor"
+        ]
+      }
+    ],
+    "annotations": [
+      {
+        "name": "ClientCompatibilityLevel",
+        "value": "600"
+      }
+    ]
+  },
+  "id": "SemanticModel"
+}
