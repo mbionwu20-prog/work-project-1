@@ -1,0 +1,1 @@
+A deep learning project that classifies cotton images into four classes: diseased leaf, diseased plant, fresh leaf and fresh plant. It compares four architectures and uses explainable AI to interpret the results.
